@@ -1,6 +1,6 @@
 package com.example.clima.datos
 
-import com.example.clima.entidad.RespuestaClima
+import com.example.clima.datos.dto.RespuestaClimaDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -13,5 +13,5 @@ interface WeatherApiService {
         @Query("lang") idioma: String = "es",
         @Query("aqi") calidadAire: String = "no",
         @Query("alerts") alertas: String = "no"
-    ): RespuestaClima
+    ): RespuestaClimaDto
 }

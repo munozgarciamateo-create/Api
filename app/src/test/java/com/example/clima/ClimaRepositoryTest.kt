@@ -1,7 +1,7 @@
 package com.example.clima
 
 import com.example.clima.datos.*
-import com.example.clima.entidad.RespuestaClima
+import com.example.clima.datos.dto.RespuestaClimaDto
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
@@ -102,7 +102,7 @@ class ClimaRepositoryTest {
 
     private fun apiQueFalla(error: Exception) = object : WeatherApiService {
         override suspend fun obtenerPronostico(key: String, ciudad: String, dias: Int,
-            idioma: String, calidadAire: String, alertas: String): RespuestaClima {
+            idioma: String, calidadAire: String, alertas: String): RespuestaClimaDto {
             throw error
         }
     }

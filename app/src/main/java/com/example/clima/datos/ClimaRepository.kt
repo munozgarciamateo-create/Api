@@ -1,6 +1,7 @@
 package com.example.clima.datos
 
 import com.example.clima.entidad.RespuestaClima
+import com.example.clima.datos.mapper.aEntidad
 import com.google.gson.JsonParser
 import com.google.gson.JsonParseException
 import kotlinx.coroutines.CancellationException
@@ -18,7 +19,7 @@ class ClimaRepository(private val api: WeatherApiService, private val key: Strin
             "Falta la clave de WeatherAPI. Configura apikey.properties y vuelve a ejecutar la app."
         )
         try {
-            return api.obtenerPronostico(key, consulta, 3)
+            return api.obtenerPronostico(key, consulta, 3).aEntidad()
         } catch (e: CancellationException) {
             throw e
         } catch (e: HttpException) {
