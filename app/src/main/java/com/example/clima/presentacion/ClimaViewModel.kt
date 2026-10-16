@@ -13,20 +13,30 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+// true = la interfaz muestra datos de PokeAPI | false = datos de WeatherAPI
+private const val USAR_POKEMON = true // CON ESTO PODEMO CAMBIAR DE WEATHER API A POKEMON API Y VICERVERSA
+
+private val CIUDAD_INICIAL = if (USAR_POKEMON) "pikachu" else "La Paz, Bolivia"
+
 data class ClimaUiState(
-    val ciudad: String = "La Paz, Bolivia",
+    val ciudad: String = CIUDAD_INICIAL,
     val cargando: Boolean = false,
     val error: String? = null,
     val respuesta: RespuestaClima? = null,
-    val modoDemo: Boolean = true
+    val modoDemo: Boolean = false
 )
 
 class ClimaViewModel(private val savedState: SavedStateHandle) : ViewModel() {
     private val repository = ClimaRepository(ApiClient.api, BuildConfig.WEATHER_API_KEY)
-    private val _estado = MutableStateFlow(ClimaUiState(
-        ciudad = savedState["ciudad"] ?: "La Paz, Bolivia",
-        modoDemo = savedState["demo"] ?: BuildConfig.WEATHER_API_KEY.isBlank()
-    ))
+    private val pokemonRepository = PokemonRepository()
+
+    private val _estado = MutableStateFlow(
+        ClimaUiState(
+            ciudad = savedState["ciudad"] ?: CIUDAD_INICIAL,
+            modoDemo = savedState["demo"]
+                ?: (!USAR_POKEMON && BuildConfig.WEATHER_API_KEY.isBlank())
+        )
+    )
     val estado = _estado.asStateFlow()
     private var consulta: Job? = null
     private var ultimaConsulta = _estado.value.ciudad
@@ -43,6 +53,7 @@ class ClimaViewModel(private val savedState: SavedStateHandle) : ViewModel() {
         consulta?.cancel()
         _estado.update { it.copy(modoDemo = demo, respuesta = null, error = null) }
         if (demo) cambiarCiudad("La Paz, Bolivia")
+        else if (USAR_POKEMON) cambiarCiudad("pikachu")
         buscarClima(_estado.value.ciudad)
     }
 
@@ -54,20 +65,27 @@ class ClimaViewModel(private val savedState: SavedStateHandle) : ViewModel() {
         _estado.update { it.copy(cargando = true, error = null, respuesta = null) }
         consulta = viewModelScope.launch {
             try {
-                if (texto.isBlank()) throw ClimaException("Escribe una ciudad para buscar.")
+                if (texto.isBlank()) throw ClimaException(
+                    if (USAR_POKEMON) "Escribe el nombre de un Pokémon para buscar."
+                    else "Escribe una ciudad para buscar."
+                )
                 val respuesta = if (demo) {
                     if (!texto.equals("La Paz", true) && !texto.equals("La Paz, Bolivia", true)) {
                         throw ClimaException("La demostración incluye solo La Paz. Desactiva el modo demo para buscar otras ciudades con WeatherAPI.")
                     }
                     DatosDemo.laPaz()
-                } else repository.obtenerClima(texto)
+                } else if (USAR_POKEMON) {
+                    pokemonRepository.obtenerPokemon(texto)
+                } else {
+                    repository.obtenerClima(texto)
+                }
                 _estado.update { it.copy(respuesta = respuesta, cargando = false) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: ClimaException) {
                 _estado.update { it.copy(error = e.message, cargando = false) }
             } catch (e: Exception) {
-                _estado.update { it.copy(error = "No se pudo mostrar el clima. Intenta nuevamente.", cargando = false) }
+                _estado.update { it.copy(error = "No se pudo mostrar la información. Intenta nuevamente.", cargando = false) }
             }
         }
     }
