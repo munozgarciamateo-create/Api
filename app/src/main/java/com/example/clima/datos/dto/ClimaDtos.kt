@@ -46,7 +46,14 @@ data class PronosticoDto(
 )
 
 data class RespuestaClimaDto(
-    @SerializedName("location") val ubicacion: UbicacionDto,
-    @SerializedName("current") val actual: ClimaActualDto,
-    @SerializedName("forecast") val pronostico: PronosticoDto
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val nombre: String,
+    @SerializedName("height") val altura: Int,
+    @SerializedName("weight") val peso: Int,
+    @SerializedName("sprites") val sprites: SpritesDto
+)
+
+class SpritesDto (
+    @SerializedName("front_default") val imagen: String?
+
 )
