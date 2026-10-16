@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object ApiClient {
+object WeatherApiClient {
     val api: WeatherApiService by lazy {
         val client = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)

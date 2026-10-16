@@ -27,7 +27,7 @@ data class ClimaUiState(
 )
 
 class ClimaViewModel(private val savedState: SavedStateHandle) : ViewModel() {
-    private val repository = ClimaRepository(ApiClient.api, BuildConfig.WEATHER_API_KEY)
+    private val repository = ClimaRepository(WeatherApiClient.api, BuildConfig.WEATHER_API_KEY)
     private val pokemonRepository = PokemonRepository()
 
     private val _estado = MutableStateFlow(
